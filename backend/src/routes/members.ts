@@ -4,10 +4,14 @@ import prisma from "../lib/prisma";
 const router = Router();
 
 router.get("/stats", async (_req, res) => {
-  console.log("GET /stats called");
   try {
+    console.log('Stats endpoint called')
+    console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL)
+
+    const totalMembers = await prisma.member.count()
+    console.log('Total members:', totalMembers)
+
     const [
-      totalMembers,
       atRisk,
       goldMembers,
       silverMembers,
@@ -17,7 +21,6 @@ router.get("/stats", async (_req, res) => {
       lowRisk,
       engagementData,
     ] = await Promise.all([
-      prisma.member.count(),
       prisma.member.count({ where: { churnRisk: "HIGH" } }),
       prisma.member.count({ where: { membershipType: "GOLD" } }),
       prisma.member.count({ where: { membershipType: "SILVER" } }),
@@ -28,7 +31,7 @@ router.get("/stats", async (_req, res) => {
       prisma.member.aggregate({ _avg: { engagementScore: true } }),
     ]);
 
-    const result = {
+    res.json({
       totalMembers,
       atRisk,
       goldMembers,
@@ -38,13 +41,11 @@ router.get("/stats", async (_req, res) => {
       mediumRisk,
       lowRisk,
       avgEngagement: Math.round(engagementData._avg.engagementScore || 0),
-    };
-
-    console.log("Stats result:", { totalMembers, atRisk });
-    res.json(result);
-  } catch (error) {
-    console.error("Stats error:", error);
-    res.status(500).json({ error: "Failed to fetch stats" });
+    });
+  } catch (error: any) {
+    console.error('Stats error full:', error)
+    console.error('Error message:', error.message)
+    res.status(500).json({ error: 'Failed to fetch stats', details: error.message })
   }
 });
 
