@@ -1,7 +1,6 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import cors from "cors";
 import dotenv from "dotenv";
 
 import membersRouter from "./routes/members";
@@ -15,28 +14,19 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-const ALLOWED_ORIGINS = [
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'https://fitreach-revivr-delta.vercel.app',
-  'https://fitreach-revivr.vercel.app',
-  /\.vercel\.app$/,
-];
-
 export const io = new Server(server, {
-  cors: {
-    origin: ALLOWED_ORIGINS,
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
+  cors: { origin: "*", methods: ["GET", "POST"] },
 });
 
-app.use(cors({
-  origin: ALLOWED_ORIGINS,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200)
+  }
+  next()
+})
 app.use(express.json());
 
 app.get("/health", (_req, res) => {
