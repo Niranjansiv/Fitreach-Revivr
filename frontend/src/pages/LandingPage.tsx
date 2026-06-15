@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { Zap, Brain, BarChart3, Target, MessageCircle, Bot, Users, TrendingUp } from 'lucide-react'
+import { Zap, Brain, BarChart3, Target, MessageCircle, Bot, Users, TrendingUp, ArrowRight, Activity } from 'lucide-react'
 import LogoIcon from '../components/ui/LogoIcon'
 
 // ── Animated orb background ──────────────────────────────────────────────────
@@ -11,8 +11,17 @@ function OrbBackground() {
         className="absolute inset-0"
         style={{
           backgroundImage:
-            'linear-gradient(rgba(0,212,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.015) 1px, transparent 1px)',
+            'linear-gradient(rgba(0,212,255,0.012) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.012) 1px, transparent 1px)',
           backgroundSize: '60px 60px',
+        }}
+      />
+      {/* Top beam spotlight */}
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"
+        style={{
+          width: 700,
+          height: 480,
+          background: 'radial-gradient(ellipse at top, rgba(0,212,255,0.11) 0%, transparent 65%)',
         }}
       />
       <motion.div
@@ -44,16 +53,16 @@ function Navbar() {
     <nav
       className="fixed top-0 left-0 right-0 z-50"
       style={{
-        background: 'rgba(6,6,17,0.8)',
-        backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(0,212,255,0.06)',
+        background: 'rgba(6,6,17,0.85)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(0,212,255,0.07)',
       }}
     >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: 'rgba(0,212,255,0.12)' }}
+            style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.2)' }}
           >
             <LogoIcon size={17} color="#00d4ff" />
           </div>
@@ -71,13 +80,13 @@ function Navbar() {
           </div>
           <button
             onClick={() => navigate('/dashboard')}
-            className="px-5 py-2 rounded-xl text-sm font-bold text-black transition-all hover:scale-105"
+            className="px-5 py-2 rounded-xl text-sm font-bold text-black transition-all hover:scale-105 flex items-center gap-1.5"
             style={{
               background: 'linear-gradient(135deg, #00d4ff, #0099cc)',
               boxShadow: '0 0 20px rgba(0,212,255,0.25)',
             }}
           >
-            Enter App →
+            Enter App <ArrowRight size={13} />
           </button>
         </div>
       </div>
@@ -85,73 +94,165 @@ function Navbar() {
   )
 }
 
-// ── Live activity cards ───────────────────────────────────────────────────────
-const LIVE_CARDS = [
-  {
-    icon: '🔴',
-    dot: '#ef4444',
-    label: 'Churn Alert',
-    value: '18 members flagged at risk',
-    floatY: [0, -12, 0],
-    delay: 0,
-  },
-  {
-    icon: '⚡',
-    dot: '#00d4ff',
-    label: 'Campaign Live',
-    value: '94% delivery · 31 opened',
-    floatY: [0, -8, 0],
-    delay: 0.6,
-  },
-  {
-    icon: '📈',
-    dot: '#8b5cf6',
-    label: 'Re-engaged',
-    value: 'Engagement up 3× this month',
-    floatY: [0, -14, 0],
-    delay: 1.1,
-  },
-]
-
-function LiveCards() {
+// ── Floating dashboard mockup (right panel) ───────────────────────────────────
+function DashboardMockup() {
   return (
-    <div className="flex flex-col items-center gap-3">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#00d4ff] animate-pulse" />
-        <span className="text-xs font-medium tracking-widest uppercase" style={{ color: '#475569' }}>
-          Live Activity
-        </span>
-      </div>
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        {LIVE_CARDS.map(({ icon, dot, label, value, floatY, delay }) => (
-          <motion.div
-            key={label}
-            animate={{ y: floatY }}
-            transition={{ duration: 3 + delay, repeat: Infinity, ease: 'easeInOut', delay }}
-            className="flex items-center gap-3 px-4 py-3 rounded-2xl"
+    <motion.div
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.7, delay: 0.4, ease: 'easeOut' }}
+      className="relative flex-1 flex items-center justify-center"
+    >
+      {/* Glow behind cards */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,212,255,0.08) 0%, rgba(139,92,246,0.06) 50%, transparent 80%)',
+        }}
+      />
+
+      <div className="relative w-full max-w-sm flex flex-col gap-3">
+        {/* Card 1: At-Risk Alert */}
+        <motion.div
+          animate={{ y: [0, -8, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          className="p-4 rounded-2xl"
+          style={{
+            background: 'rgba(10,10,25,0.92)',
+            border: '1px solid rgba(239,68,68,0.2)',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(239,68,68,0.05)',
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center"
+                style={{ background: 'rgba(239,68,68,0.12)' }}
+              >
+                <Activity size={13} style={{ color: '#ef4444' }} />
+              </div>
+              <span className="text-xs font-semibold text-white">At-Risk Alert</span>
+            </div>
+            <span
+              className="flex items-center gap-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-full"
+              style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+              Live
+            </span>
+          </div>
+          <p className="text-2xl font-black text-white mb-0.5">
+            18 <span className="text-sm font-normal text-gray-500">members</span>
+          </p>
+          <p className="text-xs text-gray-500">Avg. 23 days since last visit</p>
+          <div className="mt-3 flex gap-1.5 items-end h-8">
+            {[80, 55, 70, 40, 90, 30, 65].map((h, i) => (
+              <div
+                key={i}
+                className="flex-1 rounded-sm"
+                style={{ height: `${h * 0.32}px`, background: `rgba(239,68,68,${0.15 + (h / 100) * 0.35})` }}
+              />
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Card 2: AI Draft Ready */}
+        <motion.div
+          animate={{ y: [0, -5, 0] }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
+          className="p-4 rounded-2xl"
+          style={{
+            background: 'rgba(10,10,25,0.92)',
+            border: '1px solid rgba(139,92,246,0.2)',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(139,92,246,0.05)',
+          }}
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <div
+              className="w-7 h-7 rounded-lg flex items-center justify-center"
+              style={{ background: 'rgba(139,92,246,0.12)' }}
+            >
+              <Bot size={13} style={{ color: '#8b5cf6' }} />
+            </div>
+            <span className="text-xs font-semibold text-white">AI Draft Ready</span>
+            <span className="ml-auto text-[10px] font-medium" style={{ color: '#8b5cf6' }}>
+              WhatsApp
+            </span>
+          </div>
+          <p
+            className="text-xs leading-relaxed p-2.5 rounded-xl mb-2"
             style={{
-              background: 'rgba(12,12,29,0.85)',
-              border: `1px solid ${dot}22`,
-              backdropFilter: 'blur(12px)',
-              boxShadow: `0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)`,
+              background: 'rgba(139,92,246,0.08)',
+              color: '#94a3b8',
+              border: '1px solid rgba(139,92,246,0.12)',
             }}
           >
-            <span className="text-base">{icon}</span>
-            <div>
-              <p className="text-xs font-semibold text-white leading-none mb-0.5">{label}</p>
-              <p className="text-[10px]" style={{ color: '#64748b' }}>{value}</p>
+            "Hey{' '}
+            <span style={{ color: '#c4b5fd' }}>{'{'}</span>name
+            <span style={{ color: '#c4b5fd' }}>{'}'}</span>, we miss you at the gym! 💪 Come back this week and your first session is on us..."
+          </p>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-gray-600">31 recipients · Auto-personalized</span>
+            <span className="text-[10px] font-semibold" style={{ color: '#8b5cf6' }}>
+              Send →
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Card 3: Campaign performance */}
+        <motion.div
+          animate={{ y: [0, -10, 0] }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
+          className="p-4 rounded-2xl"
+          style={{
+            background: 'rgba(10,10,25,0.92)',
+            border: '1px solid rgba(0,212,255,0.15)',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,212,255,0.04)',
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center"
+                style={{ background: 'rgba(0,212,255,0.1)' }}
+              >
+                <TrendingUp size={13} style={{ color: '#00d4ff' }} />
+              </div>
+              <span className="text-xs font-semibold text-white">Win-Back Campaign</span>
             </div>
-            <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: dot }} />
-          </motion.div>
-        ))}
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: 'Delivered', val: '94%', color: '#00d4ff' },
+              { label: 'Opened',    val: '31',  color: '#8b5cf6' },
+              { label: 'Re-joined', val: '9',   color: '#22c55e' },
+            ].map(({ label, val, color }) => (
+              <div
+                key={label}
+                className="text-center p-2 rounded-xl"
+                style={{ background: 'rgba(255,255,255,0.03)' }}
+              >
+                <p className="text-base font-black" style={{ color }}>{val}</p>
+                <p className="text-[9px] text-gray-600 mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
 // ── Hero section ──────────────────────────────────────────────────────────────
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.14 } } } as const
-const fadeUp = { hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: 'easeOut' } } } as const
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.13 } } } as const
+const fadeUp = {
+  hidden: { opacity: 0, y: 28 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: 'easeOut' } },
+} as const
 
 function HeroSection() {
   const navigate = useNavigate()
@@ -162,92 +263,121 @@ function HeroSection() {
     >
       <OrbBackground />
 
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="relative z-10 flex flex-col items-center text-center gap-8 w-full max-w-4xl mx-auto"
-      >
-        {/* Badge */}
-        <motion.div variants={fadeUp}>
-          <span
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium"
-            style={{
-              background: 'rgba(0,212,255,0.08)',
-              border: '1px solid rgba(0,212,255,0.25)',
-              color: '#00d4ff',
-            }}
+      <div className="relative z-10 max-w-7xl mx-auto w-full flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+        {/* ── Left: Text ── */}
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          animate="show"
+          className="flex-1 flex flex-col items-start text-left gap-7 lg:max-w-[560px]"
+        >
+          {/* Badge */}
+          <motion.div variants={fadeUp}>
+            <span
+              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-sm font-semibold"
+              style={{
+                background: 'rgba(0,212,255,0.07)',
+                border: '1px solid rgba(0,212,255,0.22)',
+                color: '#00d4ff',
+                boxShadow: '0 0 24px rgba(0,212,255,0.06)',
+              }}
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-60" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00d4ff]" />
+              </span>
+              AI-Powered Member Retention Platform
+            </span>
+          </motion.div>
+
+          {/* Headline */}
+          <motion.div variants={fadeUp} className="flex flex-col gap-0.5">
+            <h1
+              className="font-black leading-[0.95] tracking-tight text-white"
+              style={{ fontSize: 'clamp(48px, 5.5vw, 76px)' }}
+            >
+              Know Exactly
+            </h1>
+            <h1
+              className="font-black leading-[0.95] tracking-tight text-white"
+              style={{ fontSize: 'clamp(48px, 5.5vw, 76px)' }}
+            >
+              Who's About to
+            </h1>
+            <h1
+              className="font-serif-accent leading-[1.05] tracking-tight"
+              style={{
+                fontSize: 'clamp(48px, 5.5vw, 76px)',
+                fontWeight: 700,
+                background: 'linear-gradient(135deg, #00d4ff 0%, #8b5cf6 55%, #00d4ff 100%)',
+                backgroundSize: '200% auto',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                animation: 'gradientShift 4s linear infinite',
+              }}
+            >
+              Walk Away.
+            </h1>
+          </motion.div>
+
+          {/* Subheadline */}
+          <motion.p
+            variants={fadeUp}
+            className="text-lg leading-relaxed max-w-[480px]"
+            style={{ color: '#64748b' }}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00d4ff] animate-pulse" />
-            ✨ AI-Powered Member Retention
-          </span>
-        </motion.div>
+            FitReach Revivr uses AI to flag at-risk members daily, crafts hyper-personalized messages, and automates re-engagement across every channel — so no member slips through the cracks.
+          </motion.p>
 
-        {/* Headline */}
-        <motion.div variants={fadeUp} className="flex flex-col items-center gap-1">
-          <h1 className="font-black leading-none tracking-tight text-white" style={{ fontSize: 84 }}>
-            Turn Churn
-          </h1>
-          <h1 className="font-black leading-none tracking-tight text-white" style={{ fontSize: 84 }}>
-            Into Loyalty
-          </h1>
-          <h1
-            className="font-serif-accent leading-none tracking-tight"
-            style={{
-              fontSize: 84,
-              fontWeight: 700,
-              background: 'linear-gradient(135deg, #00d4ff 0%, #8b5cf6 50%, #00d4ff 100%)',
-              backgroundSize: '200% auto',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              animation: 'gradientShift 4s linear infinite',
-            }}
-          >
-            On Autopilot.
-          </h1>
-        </motion.div>
+          {/* CTAs */}
+          <motion.div variants={fadeUp} className="flex items-center gap-4 flex-wrap">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="px-8 py-3.5 rounded-2xl font-bold text-black text-base transition-all hover:scale-105 flex items-center gap-2"
+              style={{
+                background: 'linear-gradient(135deg, #00d4ff, #0099cc)',
+                boxShadow: '0 0 36px rgba(0,212,255,0.35), 0 0 80px rgba(0,212,255,0.12)',
+              }}
+            >
+              🚀 Open Dashboard
+            </button>
+            <button
+              onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-8 py-3.5 rounded-2xl font-semibold text-base transition-all hover:scale-105 flex items-center gap-2 group"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#94a3b8',
+              }}
+            >
+              See how it works
+              <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          </motion.div>
 
-        {/* Subheadline */}
-        <motion.p variants={fadeUp} className="text-lg leading-relaxed max-w-[520px]" style={{ color: '#64748b' }}>
-          FitReach Revivr predicts which members are about to leave, crafts personalized outreach, and automatically re-engages them — before you lose them.
-        </motion.p>
-
-        {/* Single CTA */}
-        <motion.div variants={fadeUp}>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="px-14 py-4 rounded-2xl font-bold text-black text-lg transition-all hover:scale-105 relative overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, #00d4ff, #0099cc)',
-              boxShadow: '0 0 40px rgba(0,212,255,0.4), 0 0 80px rgba(0,212,255,0.15)',
-            }}
-          >
-            <span className="relative z-10">🚀 Open Dashboard</span>
-          </button>
-        </motion.div>
-
-        {/* Stats row */}
-        <motion.div variants={fadeUp} className="flex items-center gap-10">
-          {[
-            { num: '34%', label: 'Avg Churn Reduced' },
-            { num: '89%', label: 'Message Open Rate' },
-            { num: '3×', label: 'Re-engagement ROI' },
-          ].map(({ num, label }, i) => (
-            <div key={label} className="flex items-center gap-10">
-              <div className="text-center">
-                <p className="text-2xl font-bold" style={{ color: '#00d4ff' }}>{num}</p>
-                <p className="text-sm mt-0.5" style={{ color: '#475569' }}>{label}</p>
+          {/* Stats row */}
+          <motion.div variants={fadeUp} className="flex items-center gap-8 pt-2">
+            {[
+              { num: '34%', label: 'Churn Reduced' },
+              { num: '89%', label: 'Open Rate' },
+              { num: '3×',  label: 'Re-engagement ROI' },
+            ].map(({ num, label }, i) => (
+              <div key={label} className="flex items-center gap-8">
+                <div className="text-left">
+                  <p className="text-2xl font-black" style={{ color: '#00d4ff' }}>{num}</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#475569' }}>{label}</p>
+                </div>
+                {i < 2 && <div className="w-px h-8" style={{ background: 'rgba(255,255,255,0.06)' }} />}
               </div>
-              {i < 2 && <div className="w-px h-10" style={{ background: '#161630' }} />}
-            </div>
-          ))}
+            ))}
+          </motion.div>
         </motion.div>
 
-        {/* Live activity cards */}
-        <motion.div variants={fadeUp} className="w-full mt-2">
-          <LiveCards />
-        </motion.div>
-      </motion.div>
+        {/* ── Right: Dashboard mockup ── */}
+        <div className="flex-1 hidden lg:flex items-center justify-center">
+          <DashboardMockup />
+        </div>
+      </div>
 
       {/* Gradient fade bottom */}
       <div
@@ -263,9 +393,9 @@ const FEATURES = [
   { icon: Brain,         color: '#8b5cf6', bg: 'rgba(139,92,246,0.10)', title: 'AI Segment Builder',      desc: 'Natural language to member segments in seconds' },
   { icon: Zap,           color: '#00d4ff', bg: 'rgba(0,212,255,0.08)',  title: 'Live Delivery Tracking',  desc: 'Real-time callbacks for every message sent' },
   { icon: BarChart3,     color: '#3b82f6', bg: 'rgba(59,130,246,0.10)', title: 'Smart Analytics',         desc: 'AI insights surfaced after every campaign' },
-  { icon: Target,        color: '#ef4444', bg: 'rgba(239,68,68,0.10)',  title: 'Churn Prediction',         desc: "Know who's leaving before they do" },
-  { icon: MessageCircle, color: '#00d4ff', bg: 'rgba(0,212,255,0.08)',  title: 'Multi-Channel',            desc: 'WhatsApp, SMS, Email, Push — all in one' },
-  { icon: Bot,           color: '#8b5cf6', bg: 'rgba(139,92,246,0.10)', title: 'AI Assistant',             desc: 'Your 24/7 retention co-pilot' },
+  { icon: Target,        color: '#ef4444', bg: 'rgba(239,68,68,0.10)',  title: 'Churn Prediction',        desc: "Know who's leaving before they do" },
+  { icon: MessageCircle, color: '#00d4ff', bg: 'rgba(0,212,255,0.08)',  title: 'Multi-Channel',           desc: 'WhatsApp, SMS, Email, Push — all in one' },
+  { icon: Bot,           color: '#8b5cf6', bg: 'rgba(139,92,246,0.10)', title: 'AI Assistant',            desc: 'Your 24/7 retention co-pilot' },
 ]
 
 function FeaturesSection() {
@@ -313,7 +443,10 @@ function FeaturesSection() {
                 borderTop: `2px solid ${color}`,
               }}
             >
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110" style={{ background: bg }}>
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                style={{ background: bg }}
+              >
                 <Icon size={22} style={{ color }} />
               </div>
               <h3 className="font-bold text-white text-base">{title}</h3>
@@ -328,14 +461,14 @@ function FeaturesSection() {
 
 // ── How it works ──────────────────────────────────────────────────────────────
 const STEPS = [
-  { num: '1', icon: Users,       color: '#00d4ff', bg: 'rgba(0,212,255,0.12)', title: 'Identify',  desc: 'AI spots at-risk members daily using engagement data' },
-  { num: '2', icon: MessageCircle, color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)', title: 'Engage', desc: 'AI crafts hyper-personalized messages per member' },
-  { num: '3', icon: TrendingUp,  color: '#00d4ff', bg: 'rgba(0,212,255,0.12)', title: 'Retain',   desc: 'Track re-engagement and conversions in real-time' },
+  { num: '1', icon: Users,         color: '#00d4ff', bg: 'rgba(0,212,255,0.12)',   title: 'Identify',  desc: 'AI spots at-risk members daily using engagement data' },
+  { num: '2', icon: MessageCircle, color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)', title: 'Engage',    desc: 'AI crafts hyper-personalized messages per member' },
+  { num: '3', icon: TrendingUp,    color: '#00d4ff', bg: 'rgba(0,212,255,0.12)',   title: 'Retain',    desc: 'Track re-engagement and conversions in real-time' },
 ]
 
 function HowItWorksSection() {
   return (
-    <section className="py-28 px-6 relative overflow-hidden" style={{ background: '#07071a' }}>
+    <section id="how-it-works" className="py-28 px-6 relative overflow-hidden" style={{ background: '#07071a' }}>
       <div
         className="absolute inset-0 pointer-events-none"
         style={{ background: 'radial-gradient(ellipse 80% 40% at 50% 100%, rgba(0,212,255,0.03) 0%, transparent 80%)' }}
@@ -412,14 +545,21 @@ function HowItWorksSection() {
 // ── Social proof strip ────────────────────────────────────────────────────────
 const PROOF = [
   { value: '10,000+', label: 'Gyms using Revivr' },
-  { value: '2.4M', label: 'Members retained' },
-  { value: '$42M+', label: 'Revenue recovered' },
-  { value: '4.9 ★', label: 'Average rating' },
+  { value: '2.4M',    label: 'Members retained' },
+  { value: '$42M+',   label: 'Revenue recovered' },
+  { value: '4.9 ★',   label: 'Average rating' },
 ]
 
 function ProofStrip() {
   return (
-    <section className="py-12 px-6" style={{ background: '#060611', borderTop: '1px solid rgba(0,212,255,0.06)', borderBottom: '1px solid rgba(0,212,255,0.06)' }}>
+    <section
+      className="py-12 px-6"
+      style={{
+        background: '#060611',
+        borderTop: '1px solid rgba(0,212,255,0.06)',
+        borderBottom: '1px solid rgba(0,212,255,0.06)',
+      }}
+    >
       <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-12">
         {PROOF.map(({ value, label }) => (
           <div key={label} className="text-center">
@@ -440,7 +580,8 @@ function CTASection() {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,212,255,0.06) 0%, rgba(139,92,246,0.06) 50%, transparent 100%)',
+          background:
+            'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,212,255,0.06) 0%, rgba(139,92,246,0.06) 50%, transparent 100%)',
         }}
       />
       <motion.div
@@ -512,7 +653,7 @@ function Footer() {
   )
 }
 
-// ── Gradient animation keyframe (injected once) ───────────────────────────────
+// ── Gradient animation keyframe ───────────────────────────────────────────────
 const gradientStyle = `
   @keyframes gradientShift {
     0%   { background-position: 0% center; }

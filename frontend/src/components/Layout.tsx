@@ -105,22 +105,6 @@ export default function Layout() {
           ))}
         </nav>
 
-        {/* Service status */}
-        <div className="px-5 py-4 border-t border-dark-100">
-          <div className="space-y-2">
-            {[
-              { label: 'Backend', emoji: '⚡' },
-              { label: 'Channel Service', emoji: '📡' },
-            ].map(({ label, emoji }) => (
-              <div key={label} className="flex items-center gap-2">
-                <span className="text-xs">{emoji}</span>
-                <span className="text-xs text-gray-600">{label}</span>
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-DEFAULT animate-pulse" />
-              </div>
-            ))}
-            <p className="text-[10px] text-gray-700 mt-1">All systems operational</p>
-          </div>
-        </div>
       </aside>
 
       {/* ── Main ── */}

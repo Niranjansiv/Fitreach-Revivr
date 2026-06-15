@@ -1,10 +1,14 @@
+import * as dotenv from 'dotenv'
+import * as path from 'path'
+dotenv.config({ path: path.resolve(__dirname, '../.env') })
+
+console.log('ENV loaded from:', path.resolve(__dirname, '../.env'))
+console.log('GROQ exists:', !!process.env.GROQ_API_KEY)
+
 import express from 'express'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
-import dotenv from 'dotenv'
 import { PrismaClient } from '@prisma/client'
-
-dotenv.config()
 
 const app = express()
 const server = createServer(app)
