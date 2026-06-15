@@ -129,7 +129,7 @@ export default function Dashboard() {
   const riskRows = [
     { key: 'HIGH',   label: 'High Risk',   bar: 'bg-red-500',       dot: 'bg-red-400',       badge: 'bg-red-500/15 text-red-400',            sub: 'Immediate action needed', subColor: 'text-red-400',        anim: true },
     { key: 'MEDIUM', label: 'Medium Risk', bar: 'bg-amber-500',     dot: 'bg-amber-400',     badge: 'bg-amber-500/15 text-amber-400',         sub: 'Monitor closely',         subColor: 'text-amber-400',      anim: false },
-    { key: 'LOW',    label: 'Healthy',     bar: 'bg-cyan-DEFAULT',  dot: 'bg-cyan-DEFAULT',  badge: 'bg-cyan-DEFAULT/10 text-cyan-DEFAULT',  sub: 'Great retention',         subColor: 'text-cyan-DEFAULT',   anim: false },
+    { key: 'LOW',    label: 'Healthy',     bar: 'bg-green-400',     dot: 'bg-green-400',     badge: 'bg-green-400/15 text-green-400',        sub: 'Great retention',         subColor: 'text-green-400',      anim: true },
   ] as const
 
   return (
