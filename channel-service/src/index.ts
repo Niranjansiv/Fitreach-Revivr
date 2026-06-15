@@ -134,11 +134,11 @@ async function simulate(send: SendPayload): Promise<void> {
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 
-app.get("/health", (_req, res) => {
+app.get("/health", (_req: any, res: any) => {
   res.json({ status: "ok", service: "FitReach Channel Service" });
 });
 
-app.post("/send", (req, res) => {
+app.post("/send", (req: any, res: any) => {
   const payload = req.body as SendPayload;
 
   res.json({ success: true, message: "Queued" });
