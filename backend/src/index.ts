@@ -64,3 +64,14 @@ server.listen(PORT, () => {
   console.log('API Key:', !!process.env.ANTHROPIC_API_KEY)
   console.log('Database URL:', !!process.env.DATABASE_URL)
 })
+
+setInterval(async () => {
+  try {
+    const response = await fetch(
+      'https://fitreach-revivr.onrender.com/health'
+    )
+    console.log('Keep alive ping:', response.status)
+  } catch (error) {
+    console.log('Ping failed:', error)
+  }
+}, 14 * 60 * 1000) // ping every 14 minutes
