@@ -1,133 +1,118 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import Anthropic from "@anthropic-ai/sdk";
 
 const router = Router();
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const SYSTEM_PROMPT = `You are the FitReach Revivr AI assistant — an expert in fitness member retention and engagement strategy.
-You have access to member data including engagement scores, churn risk levels (LOW/MEDIUM/HIGH), membership types (GOLD/SILVER/BASIC), visit history, and communication logs.
-Help gym operators reduce churn, craft targeted messages, and build smart member segments.
-Be concise, data-driven, and actionable.`;
+const client = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
 
-router.post("/chat", async (req: Request, res: Response) => {
+router.post("/chat", async (req: any, res: any) => {
   try {
-    const { message, history } = req.body as {
-      message: string;
-      history?: Array<{ role: "user" | "assistant"; content: string }>;
-    };
+    const { message, history = [] } = req.body;
 
-    if (!message) {
-      res.status(400).json({ error: "message is required" });
-      return;
-    }
+    console.log("AI chat called:", message);
+    console.log("API Key exists:", !!process.env.ANTHROPIC_API_KEY);
 
-    const messages: Anthropic.MessageParam[] = [
-      ...(history ?? []).map((h) => ({ role: h.role, content: h.content })),
-      { role: "user", content: message },
-    ];
-
-    const response = await anthropic.messages.create({
-      model: "claude-opus-4-8",
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-6",
       max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      messages,
+      system: `You are an AI assistant for FitReach Revivr, a fitness member retention CRM. You help fitness studio managers identify at-risk members, create campaigns, and improve member retention.
+
+You have access to data about:
+- 50 fitness members (15 GOLD, 20 SILVER, 15 BASIC)
+- 18 high churn risk members
+- 3 segments
+- 2 campaigns
+
+Be concise, helpful and actionable. When asked to draft messages, write them in a motivational fitness tone.`,
+      messages: [
+        ...history.map((h: any) => ({ role: h.role, content: h.content })),
+        { role: "user", content: message },
+      ],
     });
 
-    const text = response.content.find((b) => b.type === "text");
-    res.json({ response: text?.type === "text" ? text.text : "" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "AI chat failed" });
+    const aiResponse =
+      response.content[0].type === "text"
+        ? response.content[0].text
+        : "Sorry, I could not process that.";
+
+    console.log("AI response generated successfully");
+
+    res.json({ response: aiResponse, success: true });
+  } catch (error: any) {
+    console.error("AI chat error:", error.message);
+    res.status(500).json({ error: "AI service error", details: error.message });
   }
 });
 
-router.post("/draft-message", async (req: Request, res: Response) => {
+router.post("/draft-message", async (req: any, res: any) => {
   try {
-    const { segmentName, channel, tone, memberCount } = req.body as {
-      segmentName: string;
-      channel: string;
-      tone: string;
-      memberCount: number;
-    };
+    const { segmentName, channel, tone, memberCount } = req.body;
 
-    if (!segmentName || !channel || !tone) {
-      res.status(400).json({ error: "segmentName, channel, and tone are required" });
-      return;
-    }
-
-    const response = await anthropic.messages.create({
-      model: "claude-opus-4-8",
-      max_tokens: 512,
-      system: SYSTEM_PROMPT,
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 500,
       messages: [
         {
           role: "user",
-          content: `Draft a ${channel} message for the "${segmentName}" segment (${memberCount ?? "unknown number of"} members). Tone: ${tone}. Return only the message text, no explanation.`,
+          content: `Draft a ${tone || "motivational"} ${channel || "WhatsApp"} message for ${memberCount || "some"} fitness members in the "${segmentName || "general"}" segment.
+Keep it under 160 characters for SMS, or 300 characters for WhatsApp.
+Use {name} as placeholder for member name.
+Make it personal and actionable.`,
         },
       ],
     });
 
-    const text = response.content.find((b) => b.type === "text");
-    res.json({ message: text?.type === "text" ? text.text : "" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Draft message failed" });
+    res.json({
+      message:
+        response.content[0].type === "text"
+          ? response.content[0].text
+          : "Hey {name}! We miss you at FitReach! 💪",
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
 });
 
-router.post("/segment", async (req: Request, res: Response) => {
+router.post("/segment", async (req: any, res: any) => {
   try {
-    const { prompt } = req.body as { prompt: string };
+    const { prompt } = req.body;
 
-    if (!prompt) {
-      res.status(400).json({ error: "prompt is required" });
-      return;
-    }
-
-    const response = await anthropic.messages.create({
-      model: "claude-opus-4-8",
-      max_tokens: 512,
-      system: SYSTEM_PROMPT,
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 500,
       messages: [
         {
           role: "user",
-          content: `Convert this natural language description into segment filters and an insight.
+          content: `Convert this to member filters: "${prompt}"
 
-Description: "${prompt}"
+Available filters:
+- churnRisk: HIGH, MEDIUM, LOW
+- membershipType: GOLD, SILVER, BASIC
+- lastVisitDays: number (days since last visit)
 
-Respond with valid JSON only, in this exact shape:
+Respond in JSON:
 {
-  "filters": {
-    "churnRisk": "HIGH" | "MEDIUM" | "LOW" | null,
-    "membershipType": "GOLD" | "SILVER" | "BASIC" | null
-  },
-  "insight": "<one sentence explaining who this segment targets and why>"
+  "filters": { "churnRisk": "HIGH" },
+  "insight": "Brief explanation",
+  "estimatedCount": 18
 }`,
         },
       ],
     });
 
-    const text = response.content.find((b) => b.type === "text");
-    if (!text || text.type !== "text") {
-      res.status(500).json({ error: "No response from AI" });
-      return;
+    const text =
+      response.content[0].type === "text" ? response.content[0].text : "{}";
+
+    try {
+      const parsed = JSON.parse(text.replace(/```json|```/g, "").trim());
+      res.json(parsed);
+    } catch {
+      res.json({ filters: {}, insight: text, estimatedCount: 0 });
     }
-
-    const jsonMatch = text.text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      res.status(500).json({ error: "Could not parse AI response" });
-      return;
-    }
-
-    const parsed = JSON.parse(jsonMatch[0]) as {
-      filters: { churnRisk: string | null; membershipType: string | null };
-      insight: string;
-    };
-
-    res.json(parsed);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Segment generation failed" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
 });
 
