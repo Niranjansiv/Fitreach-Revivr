@@ -4,8 +4,13 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const router = Router()
-const GROQ_API_KEY = process.env.GROQ_API_KEY || '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'
-console.log('Groq Key hardcoded:', GROQ_API_KEY.substring(0, 10))
+const GROQ_API_KEY = process.env.GROQ_API_KEY || ''
+
+console.log('Groq Key exists:', !!GROQ_API_KEY)
+
+if (!GROQ_API_KEY) {
+  console.error('GROQ_API_KEY not set!')
+}
 
 const callGroq = async (systemPrompt: string, userMessage: string) => {
   const response = await axios.post(
