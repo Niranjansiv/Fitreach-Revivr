@@ -15,18 +15,27 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-const localhostOrigin = /^http:\/\/localhost:\d+$/;
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://fitreach-revivr-delta.vercel.app',
+  'https://fitreach-revivr.vercel.app',
+  /\.vercel\.app$/,
+];
 
 export const io = new Server(server, {
   cors: {
-    origin: localhostOrigin,
+    origin: ALLOWED_ORIGINS,
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
 app.use(cors({
-  origin: localhostOrigin,
+  origin: ALLOWED_ORIGINS,
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(express.json());
 
