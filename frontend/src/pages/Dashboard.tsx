@@ -85,7 +85,7 @@ export default function Dashboard() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('http://localhost:4000/api/ai/chat', {
+      const response = await fetch('https://fitreach-revivr.onrender.com/api/ai/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
