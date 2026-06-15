@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -9,7 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const CALLBACK_URL = process.env.CRM_CALLBACK_URL ?? "http://localhost:4000/api/receipts/callback";
+const CALLBACK_URL = (globalThis as any).process?.env?.CRM_CALLBACK_URL || "http://localhost:4000/api/receipts/callback";
 
 // ── Channel delivery profiles ─────────────────────────────────────────────────
 
@@ -150,7 +151,7 @@ app.post("/send", (req: any, res: any) => {
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 
-const PORT = process.env.PORT ?? 4001;
+const PORT = (globalThis as any).process?.env?.PORT || 4001;
 app.listen(PORT, () =>
   console.log(`FitReach Channel Service running on port ${PORT}`)
 );
