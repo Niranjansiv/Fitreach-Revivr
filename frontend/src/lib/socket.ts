@@ -3,8 +3,12 @@ import { io } from 'socket.io-client'
 import { useStore } from '../store/useStore'
 
 export const socket = io(
-  import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000',
-  { transports: ['websocket', 'polling'] },
+  import.meta.env.VITE_SOCKET_URL || 'https://fitreach-revivr-backend.onrender.com',
+  {
+    transports: ['polling', 'websocket'],
+    reconnection: true,
+    reconnectionAttempts: 5,
+  },
 )
 
 export function useSocket() {

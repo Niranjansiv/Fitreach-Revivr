@@ -1,48 +1,50 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://fitreach-revivr-backend.onrender.com/api',
   timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 })
 
-// Members
-export const getMembers = (filters?: {
-  search?: string
-  membershipType?: string
-  churnRisk?: string
-}) => api.get('/members', { params: filters })
+export const getMembers = (filters?: any) =>
+  api.get('/members', { params: filters })
 
-export const getMemberById = (id: string) => api.get(`/members/${id}`)
-export const getAtRiskMembers = () => api.get('/members/at-risk')
-export const getDashboardStats = () => api.get('/members/stats')
+export const getMemberById = (id: string) =>
+  api.get(`/members/${id}`)
 
-// Segments
-export const getSegments = () => api.get('/segments')
-export const createSegment = (data: { name: string; description: string; rules: Record<string, unknown> }) =>
+export const getAtRiskMembers = () =>
+  api.get('/members/at-risk')
+
+export const getDashboardStats = () =>
+  api.get('/members/stats')
+
+export const getSegments = () =>
+  api.get('/segments')
+
+export const createSegment = (data: any) =>
   api.post('/segments', data)
 
-// Campaigns
-export const getCampaigns = () => api.get('/campaigns')
-export const createCampaign = (data: {
-  name: string
-  segmentId: string
-  message: string
-  channel: string
-}) => api.post('/campaigns', data)
-export const launchCampaign = (id: string) => api.post(`/campaigns/${id}/send`)
-export const getCampaignById = (id: string) => api.get(`/campaigns/${id}`)
+export const getCampaigns = () =>
+  api.get('/campaigns')
 
-// AI
-export const sendAIChat = (
-  message: string,
-  history: Array<{ role: 'user' | 'assistant'; content: string }>,
-) => api.post('/ai/chat', { message, history })
+export const createCampaign = (data: any) =>
+  api.post('/campaigns', data)
 
-export const draftMessage = (data: {
-  segmentName: string
-  channel: string
-  tone: string
-  memberCount: number
-}) => api.post('/ai/draft-message', data)
+export const launchCampaign = (id: string) =>
+  api.post(`/campaigns/${id}/send`)
 
-export const buildAISegment = (prompt: string) => api.post('/ai/segment', { prompt })
+export const getCampaignById = (id: string) =>
+  api.get(`/campaigns/${id}`)
+
+export const sendAIChat = (message: string, history: any[]) =>
+  api.post('/ai/chat', { message, history })
+
+export const draftMessage = (data: any) =>
+  api.post('/ai/draft-message', data)
+
+export const buildAISegment = (prompt: string) =>
+  api.post('/ai/segment', { prompt })
+
+export default api
