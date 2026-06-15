@@ -2,12 +2,8 @@ import { useEffect } from 'react'
 import { io } from 'socket.io-client'
 import { useStore } from '../store/useStore'
 
-const BACKEND_URL = 'http://localhost:4000'
-
-export const socket = io(BACKEND_URL, {
+export const socket = io('https://fitreach-revivr.onrender.com', {
   transports: ['polling', 'websocket'],
-  reconnection: true,
-  reconnectionAttempts: 3,
 })
 
 export default socket
