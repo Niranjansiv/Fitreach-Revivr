@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://fitreach-revivr-backend.onrender.com/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://fitreach-revivr.onrender.com/api',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
