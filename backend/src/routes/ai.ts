@@ -1,119 +1,103 @@
-import { Router } from "express";
-import Anthropic from "@anthropic-ai/sdk";
+import { Router } from 'express'
+import axios from 'axios'
+import dotenv from 'dotenv'
+dotenv.config()
 
-const router = Router();
+const router = Router()
+const GROQ_API_KEY = process.env.GROQ_API_KEY || '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'
+console.log('Groq Key hardcoded:', GROQ_API_KEY.substring(0, 10))
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
-
-router.post("/chat", async (req: any, res: any) => {
-  try {
-    const { message, history = [] } = req.body;
-
-    console.log("AI chat called:", message);
-    console.log("API Key exists:", !!process.env.ANTHROPIC_API_KEY);
-
-    const response = await client.messages.create({
-      model: "claude-sonnet-4-6",
+const callGroq = async (systemPrompt: string, userMessage: string) => {
+  const response = await axios.post(
+    'https://api.groq.com/openai/v1/chat/completions',
+    {
+      model: 'llama-3.1-8b-instant',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage },
+      ],
       max_tokens: 1024,
-      system: `You are an AI assistant for FitReach Revivr, a fitness member retention CRM. You help fitness studio managers identify at-risk members, create campaigns, and improve member retention.
+      temperature: 0.7,
+    },
+    {
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    },
+  )
+  return response.data.choices[0].message.content
+}
 
-You have access to data about:
-- 50 fitness members (15 GOLD, 20 SILVER, 15 BASIC)
-- 18 high churn risk members
-- 3 segments
-- 2 campaigns
+const SYSTEM_CONTEXT = `You are an AI assistant for FitReach Revivr, a fitness member retention CRM.
+Help fitness studio managers identify at-risk members, create campaigns, and improve member retention.
 
-Be concise, helpful and actionable. When asked to draft messages, write them in a motivational fitness tone.`,
-      messages: [
-        ...history.map((h: any) => ({ role: h.role, content: h.content })),
-        { role: "user", content: message },
-      ],
-    });
+Current studio data:
+Total members: 50
+High churn risk members: 18
+Gold members: 15
+Silver members: 20
+Basic members: 15
+Average engagement score: 52%
 
-    const aiResponse =
-      response.content[0].type === "text"
-        ? response.content[0].text
-        : "Sorry, I could not process that.";
+Be concise, helpful and actionable.
+When drafting messages use motivational fitness tone.`
 
-    console.log("AI response generated successfully");
-
-    res.json({ response: aiResponse, success: true });
-  } catch (error: any) {
-    console.error("AI chat error:", error.message);
-    res.status(500).json({ error: "AI service error", details: error.message });
-  }
-});
-
-router.post("/draft-message", async (req: any, res: any) => {
+router.post('/chat', async (req: any, res: any) => {
   try {
-    const { segmentName, channel, tone, memberCount } = req.body;
+    const { message, history = [] } = req.body
+    console.log('AI chat called:', message)
 
-    const response = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 500,
-      messages: [
-        {
-          role: "user",
-          content: `Draft a ${tone || "motivational"} ${channel || "WhatsApp"} message for ${memberCount || "some"} fitness members in the "${segmentName || "general"}" segment.
-Keep it under 160 characters for SMS, or 300 characters for WhatsApp.
-Use {name} as placeholder for member name.
-Make it personal and actionable.`,
-        },
-      ],
-    });
+    const aiResponse = await callGroq(SYSTEM_CONTEXT, message)
 
-    res.json({
-      message:
-        response.content[0].type === "text"
-          ? response.content[0].text
-          : "Hey {name}! We miss you at FitReach! 💪",
-    });
+    console.log('Groq response generated')
+    res.json({ response: aiResponse, success: true })
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    console.error('Groq Error:', error.message)
+    res.status(500).json({ error: error.message })
   }
-});
+})
 
-router.post("/segment", async (req: any, res: any) => {
+router.post('/draft-message', async (req: any, res: any) => {
   try {
-    const { prompt } = req.body;
+    const { segmentName, channel, tone, memberCount } = req.body
 
-    const response = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 500,
-      messages: [
-        {
-          role: "user",
-          content: `Convert this to member filters: "${prompt}"
+    const message = await callGroq(
+      'You are a fitness marketing expert.',
+      `Write a short ${tone || 'motivational'} ${channel || 'WhatsApp'} message for ${memberCount || 'some'} fitness members in the "${segmentName || 'general'}" segment. Use {name} placeholder. Max 160 characters.`,
+    )
+
+    res.json({ message })
+  } catch (error: any) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.post('/segment', async (req: any, res: any) => {
+  try {
+    const { prompt } = req.body
+
+    const result = await callGroq(
+      'You are a data analyst for a fitness CRM. Respond only with valid JSON.',
+      `Convert this to member filters: "${prompt}"
 
 Available filters:
-- churnRisk: HIGH, MEDIUM, LOW
-- membershipType: GOLD, SILVER, BASIC
-- lastVisitDays: number (days since last visit)
+churnRisk: HIGH, MEDIUM, LOW
+membershipType: GOLD, SILVER, BASIC
 
-Respond in JSON:
-{
-  "filters": { "churnRisk": "HIGH" },
-  "insight": "Brief explanation",
-  "estimatedCount": 18
-}`,
-        },
-      ],
-    });
-
-    const text =
-      response.content[0].type === "text" ? response.content[0].text : "{}";
+Respond ONLY with this JSON format:
+{"filters":{"churnRisk":"HIGH"},"insight":"explanation","estimatedCount":18}`,
+    )
 
     try {
-      const parsed = JSON.parse(text.replace(/```json|```/g, "").trim());
-      res.json(parsed);
+      const parsed = JSON.parse(result.replace(/```json|```/g, '').trim())
+      res.json(parsed)
     } catch {
-      res.json({ filters: {}, insight: text, estimatedCount: 0 });
+      res.json({ filters: {}, insight: result, estimatedCount: 0 })
     }
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message })
   }
-});
+})
 
-export default router;
+export default router

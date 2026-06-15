@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import AnimatedNumber from '../components/ui/AnimatedNumber'
 import SkeletonCard from '../components/ui/SkeletonCard'
-import { getDashboardStats, getCampaigns, getMembers, sendAIChat } from '../lib/api'
+import { getDashboardStats, getCampaigns, getMembers } from '../lib/api'
 import type { DashboardStats, Campaign, Member } from '../types'
 
 type ChatMessage = {
@@ -85,20 +85,36 @@ export default function Dashboard() {
     setIsLoading(true)
 
     try {
-      const history = messages.map((m) => ({ role: m.role, content: m.content }))
-      const res = await sendAIChat(trimmed, history)
-      const reply = (res.data?.message ?? res.data?.response ?? '') as string
+      const response = await fetch('http://localhost:4000/api/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          message: trimmed,
+          history: messages.map((m) => ({ role: m.role, content: m.content })),
+        }),
+      })
+
+      if (!response.ok) {
+        const errText = await response.text()
+        throw new Error(errText)
+      }
+
+      const data = await response.json()
       setMessages((prev) => [
         ...prev,
-        { id: crypto.randomUUID(), role: 'assistant', content: reply },
+        { id: crypto.randomUUID(), role: 'assistant', content: data.response || 'No response received' },
       ])
-    } catch {
+    } catch (error: any) {
+      console.error('AI Error:', error)
       setMessages((prev) => [
         ...prev,
         {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content: "I'm having trouble connecting right now. Please check that the backend server is running.",
+          content: `Error: ${error?.message || 'Unknown error'}`,
         },
       ])
     } finally {

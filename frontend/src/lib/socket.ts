@@ -2,14 +2,15 @@ import { useEffect } from 'react'
 import { io } from 'socket.io-client'
 import { useStore } from '../store/useStore'
 
-export const socket = io(
-  import.meta.env.VITE_SOCKET_URL || 'https://fitreach-revivr-backend.onrender.com',
-  {
-    transports: ['polling', 'websocket'],
-    reconnection: true,
-    reconnectionAttempts: 5,
-  },
-)
+const BACKEND_URL = 'http://localhost:4000'
+
+export const socket = io(BACKEND_URL, {
+  transports: ['polling', 'websocket'],
+  reconnection: true,
+  reconnectionAttempts: 3,
+})
+
+export default socket
 
 export function useSocket() {
   const addActivity = useStore((s) => s.addActivity)
