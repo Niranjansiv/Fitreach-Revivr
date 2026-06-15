@@ -2,7 +2,10 @@ import { useEffect } from 'react'
 import { io } from 'socket.io-client'
 import { useStore } from '../store/useStore'
 
-export const socket = io('http://localhost:4000', { autoConnect: true })
+export const socket = io(
+  import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000',
+  { transports: ['websocket', 'polling'] },
+)
 
 export function useSocket() {
   const addActivity = useStore((s) => s.addActivity)
