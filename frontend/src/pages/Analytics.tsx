@@ -161,7 +161,7 @@ function RiskPie({ members }: { members: Member[] }) {
           </Pie>
           <Tooltip
             contentStyle={{ background: '#0c0c1d', border: '1px solid rgba(0,212,255,0.08)', borderRadius: 10, color: '#fff', fontSize: 12 }}
-            formatter={(value: number, name: string) => [`${value} members (${Math.round((value / total) * 100)}%)`, name]}
+            formatter={(value: any, name: any) => [`${value} members (${Math.round((value / total) * 100)}%)`, name]}
           />
         </PieChart>
       </ResponsiveContainer>
